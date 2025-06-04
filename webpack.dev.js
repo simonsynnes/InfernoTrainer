@@ -8,9 +8,9 @@ const common = require('./webpack.common.js');
 module.exports = merge(common, {
   mode: 'development',
   devtool: 'inline-source-map',
-  entry: './sample/sample.ts',
+  entry: './yama-p3-main.ts',
   output: {
-    filename: "sample.js",
+    filename: "yama-p3-simulator.js",
     path: path.resolve(__dirname, "dist"),
     publicPath: '',
   },
@@ -25,7 +25,7 @@ module.exports = merge(common, {
   plugins: [
     new CopyPlugin({
       patterns: [
-        { from: `index.html`, to: "", context: `sample/` },
+        { from: `yama-p3-index.html`, to: "index.html", context: "." },
         { from: `assets/fonts/*.woff`, to: "", context: `src/` },
         { from: `assets/fonts/*.woff2`, to: "", context: `src/` },
       ],

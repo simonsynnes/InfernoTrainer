@@ -71,4 +71,12 @@ export enum ItemName {
   BLADE_OF_SAELDOR = "Blade of saeldor",
   AVERNIC_DEFENDER = "Avernic defender",
   ULTOR_RING = "Ultor ring",
+  
+  // Yama P3 weapons
+  YAMA_RANGED_ATTACK = "Yama Ranged Attack",
+  YAMA_MAGIC_ATTACK = "Yama Magic Attack",
+  YAMA_MELEE_ATTACK = "Yama Melee Attack",
+  
+  // Other items
+  PURGING_STAFF = "Purging Staff",
 }

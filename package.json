@@ -1,7 +1,7 @@
 {
-  "name": "@supalosa/oldschool-trainer-sdk",
-  "version": "0.1.0",
-  "description": "",
+  "name": "yama-p3-simulator",
+  "version": "1.0.0",
+  "description": "Yama Phase 3 Boss Fight Simulator using InfernoTrainer SDK",
   "main": "_bundles/main.js",
   "types": "lib/index.d.ts",
   "node": "^>=16.0.0",
@@ -11,23 +11,31 @@
     "lint": "eslint . --ext .ts --fix",
     "prettier": "npx prettier --write .",
     "start": "npx webpack serve --config webpack.dev.js",
-    "test": "npx jest"
+    "test": "npx jest",
+    "extract-assets": "node scripts/extract-yama-assets.js"
   },
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/OldSchoolSDK/Engine.git"
+    "url": "git+https://github.com/simonsynnes/InfernoTrainer.git"
   },
-  "keywords": [],
-  "author": "",
+  "keywords": [
+    "osrs",
+    "yama",
+    "simulator",
+    "boss-fight",
+    "phase-3"
+  ],
+  "author": "Claude Code",
   "license": "ISC",
   "bugs": {
-    "url": "https://github.com/OldSchoolSDK/Engine/issues"
+    "url": "https://github.com/simonsynnes/InfernoTrainer/issues"
   },
   "files": [
     "lib",
-    "_bundles"
+    "_bundles",
+    "src/yama-p3"
   ],
-  "homepage": "https://github.com/OldSchoolSDK/Engine#readme",
+  "homepage": "https://github.com/simonsynnes/InfernoTrainer#readme",
   "devDependencies": {
     "@types/jest": "^27.5.2",
     "@types/lodash": "^4.14.171",
@@ -48,9 +56,9 @@
     "ts-jest": "^27.1.4",
     "ts-loader": "^9.5.1",
     "typescript": "^4.6.3",
-    "webpack": "^5.91.0",
-    "webpack-cli": "^4.9.2",
-    "webpack-dev-server": "^3.11.2",
+    "webpack": "^5.99.9",
+    "webpack-cli": "^4.10.0",
+    "webpack-dev-server": "^3.11.3",
     "webpack-merge": "^5.10.0"
   },
   "dependencies": {

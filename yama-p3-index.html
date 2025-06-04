@@ -1,0 +1,228 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Yama Phase 3 Simulator</title>
+    <style>
+        body {
+            margin: 0;
+            padding: 0;
+            background-color: #1a1a1a;
+            color: #ffffff;
+            font-family: 'Arial', sans-serif;
+            overflow: hidden;
+        }
+        
+        #game-container {
+            position: relative;
+            width: 100vw;
+            height: 100vh;
+        }
+        
+        #simulator-info {
+            position: absolute;
+            top: 10px;
+            left: 10px;
+            background: rgba(0, 0, 0, 0.8);
+            padding: 15px;
+            border-radius: 8px;
+            border: 2px solid #ffd700;
+            z-index: 1000;
+            font-size: 14px;
+            line-height: 1.4;
+        }
+        
+        #simulator-info h1 {
+            margin: 0 0 10px 0;
+            color: #ffd700;
+            font-size: 18px;
+        }
+        
+        #simulator-info p {
+            margin: 5px 0;
+        }
+        
+        #controls {
+            position: absolute;
+            top: 10px;
+            right: 10px;
+            background: rgba(0, 0, 0, 0.8);
+            padding: 15px;
+            border-radius: 8px;
+            border: 2px solid #ff6b6b;
+            z-index: 1000;
+        }
+        
+        .control-button {
+            display: block;
+            width: 120px;
+            margin: 5px 0;
+            padding: 8px;
+            background: #ff6b6b;
+            color: white;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 12px;
+        }
+        
+        .control-button:hover {
+            background: #ff5252;
+        }
+        
+        #debug-info {
+            position: absolute;
+            bottom: 10px;
+            left: 10px;
+            background: rgba(0, 0, 0, 0.8);
+            padding: 10px;
+            border-radius: 8px;
+            border: 2px solid #4caf50;
+            z-index: 1000;
+            font-size: 12px;
+            font-family: monospace;
+        }
+        
+        .status-indicator {
+            display: inline-block;
+            width: 10px;
+            height: 10px;
+            border-radius: 50%;
+            margin-right: 5px;
+        }
+        
+        .status-active { background-color: #4caf50; }
+        .status-inactive { background-color: #f44336; }
+        .status-warning { background-color: #ff9800; }
+        
+        #world {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            image-rendering: pixelated;
+        }
+    </style>
+</head>
+<body>
+    <div id="game-container">
+        <canvas id="world" onselectstart="return false" oncontextmenu="return false"></canvas>
+        <div id="simulator-info">
+            <h1>🔥 Yama Phase 3 Simulator</h1>
+            <p><strong>Boss:</strong> Yama (Phase 3)</p>
+            <p><strong>Arena:</strong> Chasm of Fire</p>
+            <p><strong>Features:</strong></p>
+            <ul style="margin: 5px 0; padding-left: 20px;">
+                <li>Prayer-piercing attacks</li>
+                <li>Shadow Crash special</li>
+                <li>Void Flare spawning</li>
+                <li>Shadow Wave patterns</li>
+            </ul>
+            <p><strong>Strategy:</strong> Use Purging Staff + Dark Demonbane to one-shot Void Flares</p>
+        </div>
+        
+        <div id="controls">
+            <h3 style="margin: 0 0 10px 0; color: #ff6b6b;">Controls</h3>
+            <button class="control-button" onclick="resetSimulation()">Reset Fight</button>
+            <button class="control-button" onclick="toggleDebug()">Toggle Debug</button>
+            <button class="control-button" onclick="spawnVoidFlare()">Spawn Void Flare</button>
+            <button class="control-button" onclick="triggerShadowCrash()">Force Shadow Crash</button>
+        </div>
+        
+        <div id="debug-info">
+            <div><span class="status-indicator status-inactive" id="sim-status"></span>Simulator: <span id="sim-status-text">Loading...</span></div>
+            <div><span class="status-indicator status-inactive" id="yama-status"></span>Yama: <span id="yama-status-text">Not spawned</span></div>
+            <div><span class="status-indicator status-inactive" id="player-status"></span>Player: <span id="player-status-text">Not spawned</span></div>
+            <div>FPS: <span id="fps-counter">0</span></div>
+            <div>Ticks: <span id="tick-counter">0</span></div>
+        </div>
+    </div>
+
+    <script>
+        // Global control functions
+        function resetSimulation() {
+            if (window.yamaP3Simulator) {
+                window.yamaP3Simulator.reset();
+                console.log('Simulation reset');
+            }
+        }
+        
+        function toggleDebug() {
+            // TODO: Implement debug mode toggle
+            console.log('Debug mode toggled');
+        }
+        
+        function spawnVoidFlare() {
+            if (window.yamaArena) {
+                window.yamaArena.spawnVoidFlare();
+                console.log('Forced Void Flare spawn');
+            }
+        }
+        
+        function triggerShadowCrash() {
+            if (window.yama) {
+                window.yama.performShadowCrash();
+                console.log('Forced Shadow Crash');
+            }
+        }
+        
+        // Status update functions
+        function updateStatus() {
+            const simStatus = document.getElementById('sim-status');
+            const simStatusText = document.getElementById('sim-status-text');
+            const yamaStatus = document.getElementById('yama-status');
+            const yamaStatusText = document.getElementById('yama-status-text');
+            const playerStatus = document.getElementById('player-status');
+            const playerStatusText = document.getElementById('player-status-text');
+            
+            if (window.yamaP3Simulator) {
+                simStatus.className = 'status-indicator status-active';
+                simStatusText.textContent = 'Running';
+                
+                if (window.yama) {
+                    yamaStatus.className = 'status-indicator status-active';
+                    yamaStatusText.textContent = `HP: ${window.yama.currentStats?.hitpoint || 0}/${window.yama.stats?.hitpoint || 0}`;
+                }
+                
+                if (window.player) {
+                    playerStatus.className = 'status-indicator status-active';
+                    playerStatusText.textContent = `HP: ${window.player.currentStats?.hitpoint || 0}/${window.player.stats?.hitpoint || 0}`;
+                }
+            }
+        }
+        
+        // Update status every second
+        setInterval(updateStatus, 1000);
+        
+        // Keyboard shortcuts
+        document.addEventListener('keydown', function(event) {
+            switch(event.key) {
+                case 'r':
+                case 'R':
+                    resetSimulation();
+                    break;
+                case 'd':
+                case 'D':
+                    toggleDebug();
+                    break;
+                case 'v':
+                case 'V':
+                    spawnVoidFlare();
+                    break;
+                case 's':
+                case 'S':
+                    triggerShadowCrash();
+                    break;
+            }
+        });
+        
+        console.log('Yama P3 Simulator Interface loaded');
+        console.log('Keyboard shortcuts: R=Reset, D=Debug, V=Void Flare, S=Shadow Crash');
+    </script>
+    
+    <!-- Load the Yama P3 Simulator -->
+    <script src="yama-p3-simulator.js"></script>
+</body>
+</html>
