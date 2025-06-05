@@ -9,6 +9,8 @@
  */
 
 import { Entity, Location, Region, Random, DelayedAction } from '../../sdk';
+import { Projectile } from '../../sdk/weapons/Projectile';
+import { Player } from '../../sdk/Player';
 
 export class ShadowWave extends Entity {
     private direction: number; // Angle in degrees
@@ -75,8 +77,7 @@ export class ShadowWave extends Entity {
             if (this.isPlayerInWavePath(player)) {
                 console.log(`Shadow Wave hits ${player.mobName()} for ${this.damage} damage`);
                 
-                // TODO: Apply damage
-                // player.takeDamage(this.damage, 'magic');
+                this.dealDamageToPlayer(player, this.damage);
                 
                 // Mark this player as hit
                 this.hasDealtDamage.add(playerId);
@@ -109,6 +110,23 @@ export class ShadowWave extends Entity {
             this.location.y < -5 ||
             this.location.y > this.region.height + 5
         );
+    }
+    
+    private dealDamageToPlayer(player: Player, damage: number): void {
+        // Create a magic projectile that instantly hits for the damage
+        const projectile = new Projectile(
+            null, // No weapon source
+            damage,
+            null, // No attacking unit 
+            player,
+            'magic',
+            {
+                setDelay: 0, // Instant damage
+                color: '#2F4F4F' // Dark slate gray for shadow waves
+            }
+        );
+        
+        player.addProjectile(projectile);
     }
 }
 

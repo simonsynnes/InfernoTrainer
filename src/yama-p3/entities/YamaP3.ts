@@ -26,6 +26,15 @@ import { ShadowWaveAction } from './ShadowWave';
 // Using Verzik model as temporary placeholder for testing 3D rendering
 const YamaModel = Assets.getAssetUrl("models/verzik.glb");
 
+// Verzik animation IDs (from assets.md)
+// Verzik: Idle, Walk, Melee, Range animations are 8120,8121,8123,8125
+enum YamaAnimations {
+    Idle = 0,
+    Walk = 1, 
+    Melee = 2,
+    Range = 3
+}
+
 export class YamaP3 extends Mob {
     private attackPattern: 'ranged' | 'magic' = 'ranged'; // Initial style based on P2 glyphs
     private shadowCrashCooldown = 0;
@@ -102,10 +111,9 @@ export class YamaP3 extends Mob {
     }
     
     override create3dModel() {
-        // For now, return null to use the default 2D colored square rendering
-        // TODO: Re-enable 3D model once Verzik model loading is confirmed working
-        console.log('Using default 2D rendering for Yama P3');
-        return null;
+        // Use Verzik model as placeholder until Yama model is extracted
+        console.log('Creating 3D model for Yama P3 using Verzik placeholder');
+        return GLTFModel.forRenderable(this, YamaModel);
     }
     
     override get bonuses(): UnitBonuses {
@@ -312,5 +320,26 @@ export class YamaP3 extends Mob {
     override async preload(): Promise<void> {
         await super.preload();
         console.log('Yama P3 model preloaded');
+    }
+    
+    // Animation IDs for 3D model
+    get idleAnimationId(): number {
+        return YamaAnimations.Idle;
+    }
+    
+    get walkAnimationId(): number {
+        return YamaAnimations.Walk;
+    }
+    
+    get attackAnimationId(): number {
+        const style = this.attackStyleForNewAttack();
+        if (style === 'slash') {
+            return YamaAnimations.Melee;
+        }
+        return YamaAnimations.Range; // Both magic and ranged use same animation
+    }
+    
+    get deathAnimationId(): number {
+        return YamaAnimations.Walk; // TODO: Use proper death animation when available
     }
 }

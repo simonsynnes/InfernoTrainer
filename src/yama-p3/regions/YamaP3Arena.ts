@@ -9,9 +9,10 @@
  * - Complex mechanics timing (Shadow Crash, Void Flares, Shadow Waves)
  */
 
-import { Region, Player, Location, Collision } from '../../sdk';
+import { Region, Player, Location, Collision, ImageLoader, Settings } from '../../sdk';
 import { YamaP3 } from '../entities/YamaP3';
 import { ShadowWaveAction } from '../entities/ShadowWave';
+import YamaArenaFloorImage from '../assets/images/arena-floor.png';
 import { 
     TorvaFullhelm, TorvaPlatebody, TorvaPlatelegs, 
     AmuletOfTorture, InfernalCape, FerociousGloves, 
@@ -24,6 +25,8 @@ import {
 } from '../../content/items';
 
 export class YamaP3Arena extends Region {
+    mapImage: HTMLImageElement = ImageLoader.createImage(YamaArenaFloorImage);
+    
     private yama: YamaP3;
     private shadowCrashCooldown = 0;
     private voidFlareSpawnTimer = 0;
@@ -51,38 +54,32 @@ export class YamaP3Arena extends Region {
     }
     
     drawWorldBackground(context: OffscreenCanvasRenderingContext2D, scale: number): void {
-        // Draw a dark rocky arena floor
-        context.fillStyle = "#2a1f1a"; // Dark brown/rock color
-        context.fillRect(0, 0, this.width * scale, this.height * scale);
+        context.fillStyle = "black";
+        context.fillRect(0, 0, 10000000, 10000000);
         
-        // Draw grid pattern for visibility
-        context.strokeStyle = "#3a2f2a";
-        context.lineWidth = 1;
-        
-        // Draw vertical lines
-        for (let x = 0; x <= this.width; x++) {
-            context.beginPath();
-            context.moveTo(x * scale, 0);
-            context.lineTo(x * scale, this.height * scale);
-            context.stroke();
+        if (this.mapImage) {
+            const ctx = context as any;
+            ctx.webkitImageSmoothingEnabled = false;
+            ctx.mozImageSmoothingEnabled = false;
+            context.imageSmoothingEnabled = false;
+
+            context.fillStyle = "white";
+            
+            // Draw the map image
+            context.drawImage(this.mapImage, 0, 0, this.width * scale, this.height * scale);
+
+            ctx.webkitImageSmoothingEnabled = true;
+            ctx.mozImageSmoothingEnabled = true;
+            context.imageSmoothingEnabled = true;
+        } else {
+            // Fallback to simple floor if image not loaded
+            context.fillStyle = "#2a1f1a"; // Dark brown/rock color
+            context.fillRect(0, 0, this.width * scale, this.height * scale);
         }
-        
-        // Draw horizontal lines
-        for (let y = 0; y <= this.height; y++) {
-            context.beginPath();
-            context.moveTo(0, y * scale);
-            context.lineTo(this.width * scale, y * scale);
-            context.stroke();
-        }
-        
-        // Draw arena boundary
-        context.strokeStyle = "#ff0000";
-        context.lineWidth = 2;
-        context.strokeRect(scale, scale, (this.width - 2) * scale, (this.height - 2) * scale);
     }
     
     override drawDefaultFloor(): boolean {
-        return true;
+        return !Settings.use3dView; // Don't draw default floor in 3D mode
     }
     
     initialiseRegion(): { player: Player } {

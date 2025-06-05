@@ -11,6 +11,7 @@
 
 import { Entity, Location, Region, Random, DelayedAction } from '../../sdk';
 import { Projectile } from '../../sdk/weapons/Projectile';
+import { Player } from '../../sdk/Player';
 
 export class ShadowCrashFireball extends Entity {
     private willSpawnShadows: boolean;
@@ -73,8 +74,7 @@ export class ShadowCrashFireball extends Entity {
         this.region.players.forEach(player => {
             if (this.isPlayerAtLocation(player, this.impactLocation)) {
                 console.log(`Shadow Crash fireball hits player for ${this.damage} damage`);
-                // TODO: Apply damage
-                // player.takeDamage(this.damage, 'magic');
+                this.dealDamageToPlayer(player, this.damage);
             }
         });
         
@@ -89,6 +89,23 @@ export class ShadowCrashFireball extends Entity {
     
     private isPlayerAtLocation(player: any, location: Location): boolean {
         return player.location.x === location.x && player.location.y === location.y;
+    }
+    
+    private dealDamageToPlayer(player: Player, damage: number): void {
+        // Create a magic projectile that instantly hits for the damage
+        const projectile = new Projectile(
+            null, // No weapon source
+            damage,
+            null, // No attacking unit 
+            player,
+            'magic',
+            {
+                setDelay: 0, // Instant damage
+                color: '#FF4500' // Orange fireball color
+            }
+        );
+        
+        player.addProjectile(projectile);
     }
     
     private spawnConvergingShadows(): void {
@@ -180,8 +197,7 @@ export class ConvergingShadow extends Entity {
         this.region.players.forEach(player => {
             if (this.isPlayerNearby(player)) {
                 console.log(`Converging shadow hits player for ${this.damage} damage`);
-                // TODO: Apply damage
-                // player.takeDamage(this.damage, 'magic');
+                this.dealDamageToPlayer(player, this.damage);
             }
         });
         
@@ -195,6 +211,23 @@ export class ConvergingShadow extends Entity {
             Math.abs(player.location.y - this.location.y)
         );
         return distance <= 1; // 1-tile explosion radius
+    }
+    
+    private dealDamageToPlayer(player: Player, damage: number): void {
+        // Create a magic projectile that instantly hits for the damage
+        const projectile = new Projectile(
+            null, // No weapon source
+            damage,
+            null, // No attacking unit 
+            player,
+            'magic',
+            {
+                setDelay: 0, // Instant damage
+                color: '#FF4500' // Orange fireball color
+            }
+        );
+        
+        player.addProjectile(projectile);
     }
 }
 
@@ -222,19 +255,31 @@ export class ShadowCrashSequence {
     
     /**
      * Execute the complete Shadow Crash sequence
+     * Creates 3 sets of fireballs in lines at different angles
      */
     execute(): void {
         const angles = ShadowCrashSequence.ANGLE_SETS[this.angleIndex];
         const isCardinal = this.angleIndex === 0;
         
-        console.log(`Executing Shadow Crash sequence: ${isCardinal ? 'Cardinal' : 'Diagonal'} angles`);
+        console.log(`Executing Shadow Crash sequence: ${isCardinal ? 'Cardinal' : 'Diagonal'} angles - 3 sets of fireballs`);
         
-        // Create 3 fireballs in a line
-        this.createFireballLine(angles[0]); // Primary direction
+        // Create 3 sets of fireballs in sequence
+        // Set 1: Immediate
+        this.createFireballLine(angles[0]);
         
-        // Trigger shadow wave sequence after fireballs impact
+        // Set 2: After 2 ticks (1.2 seconds)
         DelayedAction.registerDelayedAction(
-            new DelayedAction(() => this.triggerShadowWaves(), 8) // After fireballs impact
+            new DelayedAction(() => this.createFireballLine(angles[1]), 2)
+        );
+        
+        // Set 3: After 4 ticks (2.4 seconds) 
+        DelayedAction.registerDelayedAction(
+            new DelayedAction(() => this.createFireballLine(angles[2]), 4)
+        );
+        
+        // Trigger shadow wave sequence after all fireballs impact
+        DelayedAction.registerDelayedAction(
+            new DelayedAction(() => this.triggerShadowWaves(), 12) // After all sets impact
         );
     }
     

@@ -136,8 +136,11 @@ async function startSimulation() {
                             }
                         });
                         
-                        // Set a background color for the scene
-                        viewport.delegate.scene.background = new THREE.Color(0x1a1a1a); // Dark background
+                        // Set a volcanic/lava themed background for Yama's arena
+                        viewport.delegate.scene.background = new THREE.Color(0x1a0a05); // Very dark reddish background
+                        
+                        // Add fog for atmosphere
+                        viewport.delegate.scene.fog = new THREE.Fog(0x1a0a05, 15, 50);
                         
                         // Fix floor plane positioning to ensure it's perfectly horizontal
                         const floorPlane = viewport.delegate.scene.children.find((child: any) => 
@@ -151,16 +154,44 @@ async function startSimulation() {
                             console.log('Floor plane position corrected:', floorPlane.position);
                         }
                         
-                        // Add additional lighting to make models more visible
-                        const directionalLight = new THREE.DirectionalLight(0xffffff, 0.8);
-                        directionalLight.position.set(10, 20, 10);
-                        directionalLight.castShadow = false;
+                        // Remove any existing lights first to ensure clean setup
+                        const existingLights = viewport.delegate.scene.children.filter((child: any) => 
+                            child.isLight
+                        );
+                        existingLights.forEach((light: any) => {
+                            viewport.delegate.scene.remove(light);
+                        });
+                        
+                        // Add proper lighting for volcanic arena theme
+                        // Ambient light for base visibility (reddish)
+                        const ambientLight = new THREE.AmbientLight(0x552222, 0.5);
+                        viewport.delegate.scene.add(ambientLight);
+                        
+                        // Main directional light from above (warm orange/yellow)
+                        const directionalLight = new THREE.DirectionalLight(0xffbb88, 1.0);
+                        directionalLight.position.set(10, 30, 10);
+                        directionalLight.castShadow = true;
+                        directionalLight.shadow.camera.near = 0.5;
+                        directionalLight.shadow.camera.far = 50;
+                        directionalLight.shadow.mapSize.width = 2048;
+                        directionalLight.shadow.mapSize.height = 2048;
                         viewport.delegate.scene.add(directionalLight);
                         
-                        // Add point light at arena center for better model illumination
-                        const pointLight = new THREE.PointLight(0xffffff, 1.0, 30);
-                        pointLight.position.set(15, 5, 15);
-                        viewport.delegate.scene.add(pointLight);
+                        // Lava glow effect (orange point light from below)
+                        const lavaGlow = new THREE.PointLight(0xff5500, 0.8, 40);
+                        lavaGlow.position.set(15, 1, -15);
+                        viewport.delegate.scene.add(lavaGlow);
+                        
+                        // Rim light for better visibility
+                        const rimLight = new THREE.DirectionalLight(0x8855ff, 0.4);
+                        rimLight.position.set(-10, 15, -10);
+                        viewport.delegate.scene.add(rimLight);
+                        
+                        // Enable shadows on renderer
+                        if (viewport.delegate.renderer) {
+                            viewport.delegate.renderer.shadowMap.enabled = true;
+                            viewport.delegate.renderer.shadowMap.type = THREE.PCFSoftShadowMap;
+                        }
                         
                         // Try to manually position camera for debugging
                         if (viewport.delegate.camera) {
